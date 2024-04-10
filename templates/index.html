@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snap Track</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Snap Track</h1>
+        <form id="upload-form" action="/process" method="post" enctype="multipart/form-data">
+            <label for="input_text">Input Prompt:</label>
+            <input type="text" name="input_text" id="input_text" class="input-field" value="Detect the food item and give me the calories and macros of the food according to the quantity of the food which is detected in the image"><br><br>
+            <label for="image" class="file-label">
+                <img src="{{ url_for('static', filename='upload-icon.png') }}" alt="Upload Image">
+                Drag & Drop or Click to Upload
+            </label>
+            <input type="file" name="image" id="image" class="file-input">
+            <input type="submit" value="Tell me about the image" class="submit-btn">
+        </form>
+        <div id="image-container"></div>
+        <div id="result-container"></div>
+    </div>
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var form = event.target;
+            var formData = new FormData(form);
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(result => {
+                var resultContainer = document.getElementById('result-container');
+                resultContainer.innerHTML = result;
+            })
+            .catch(error => console.error('Error:', error));
+            
+            var imageInput = document.getElementById('image');
+            var imageContainer = document.getElementById('image-container');
+            var file = imageInput.files[0];
+            var reader = new FileReader();
+            reader.onloadend = function() {
+                var img = document.createElement('img');
+                img.src = reader.result;
+                imageContainer.innerHTML = '';
+                imageContainer.appendChild(img);
+            }
+            if (file) {
+                reader.readAsDataURL(file);
+            } else {
+                imageContainer.innerHTML = '';
+            }
+        });
+    </script>
+</body>
+</html>
